@@ -46,12 +46,8 @@ public class GameScreen implements Screen {
     //private int[][] staticGrid;
     private Box2DDebugRenderer debugRenderer;
     private float accumulator = 0f;
+
     private TiledMap map;
-
-    public String getMapName() {
-        return mapName;
-    }
-
     private String mapName;
     private float mapWidthInPixels;
     private float mapHeightInPixels;
@@ -59,8 +55,6 @@ public class GameScreen implements Screen {
     private int mapHeightInTiles;
     private int mapNumLayers;
     private OrthogonalTiledMapRenderer mapRenderer;
-    private float cameraZoom = 1f; //4.5
-    private Body testPlatform;
     private CustomExtendViewport myViewport;
     private Viewport hudViewport;
     private MyInputProcessor inputProcessor;
@@ -69,6 +63,9 @@ public class GameScreen implements Screen {
     private final Vector3 cameraTarget = new Vector3(0, 0, 0);
     private boolean worldUpdate = false;
 
+    public String getMapName() {
+        return mapName;
+    }
 
     Comparator<Entity> depthComparator = new Comparator<Entity>() {
         public int compare(Entity e1, Entity e2) {
@@ -110,7 +107,7 @@ public class GameScreen implements Screen {
     }
 
     public void loadMap(String mapName){
-        if (mapName == this.mapName)
+        if (mapName.equals(this.mapName))
             return;
         this.mapName = mapName;
         EntityManager.changeMap(mapName); //tell entity manager to change current map
@@ -214,8 +211,7 @@ public class GameScreen implements Screen {
         myViewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         hudViewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         debugCamera = new OrthographicCamera();
-        debugCamera.setToOrtho(false, Constants.toMeters(Gdx.graphics.getWidth() / myViewport.getScale()), Constants.toMeters(Gdx.graphics.
-                getHeight() / myViewport.getScale()));
+        debugCamera.setToOrtho(false, Constants.toMeters(myViewport.getWorldWidth()), Constants.toMeters(myViewport.getWorldHeight()));
         //debugCamera.zoom = camera.zoom;
 
         debugRenderer = new Box2DDebugRenderer();
@@ -357,7 +353,6 @@ public class GameScreen implements Screen {
         batch.end();
         for (int i = layersAbovePlayer; i < mapNumLayers; i++)
             mapRenderer.render(new int[] {i});
-
         if (Constants.DEBUG) {
             debugRenderer.render(WorldManager.world, debugCamera.combined);
         }
@@ -411,32 +406,30 @@ public class GameScreen implements Screen {
     }
 
     public void renderHud(float delta) {
+        hudViewport.apply(true);
         stage.act(delta);
         stage.draw();
+        if (Constants.DEBUG){
+            batch.setProjectionMatrix(hudCamera.combined);
+            batch.begin();
 
-    	 hudViewport.apply(true);
-    	 
-    	 if (Constants.DEBUG){
- 	        batch.setProjectionMatrix(hudCamera.combined);
- 	        batch.begin();
+            font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 50, 50);
+            font.draw(batch, "Mouse X: " + Gdx.input.getX(), 50, 70);
+            font.draw(batch, "Mouse Y: " + Gdx.input.getY(), 50, 90);
+            font.draw(batch, "PX: " + player.getX() + " PY: " + player.getY(), 50, 130);
+            font.draw(batch, "Player Velocity: " + player.getVelocity(), 50, 150);
+            font.draw(batch, "Camera Position: " + camera.position.x + ", " + camera.position.y, 50, 170);
+            double testY = player.getY() + player.getY();
+            font.draw(batch, "Interpolated X: " + player.getPosition().x + " Interpolated Y: " + player.getPosition().y, 50, 190);
+            font.draw(batch, "Projected Mouse: " + myViewport.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0)).x + ", " +  myViewport.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0)).y, 50, 210);
 
- 	        font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 50, 50);
- 	        font.draw(batch, "Mouse X: " + Gdx.input.getX(), 50, 70);
- 	        font.draw(batch, "Mouse Y: " + Gdx.input.getY(), 50, 90);
- 	        font.draw(batch, "PX: " + player.getX() + " PY: " + player.getY(), 50, 130);
- 	        font.draw(batch, "Player Velocity: " + player.getVelocity(), 50, 150);
- 	        font.draw(batch, "Camera Position: " + camera.position.x + ", " + camera.position.y, 50, 170);
- 	        double testY = player.getY() + player.getY();
- 	        font.draw(batch, "Interpolated X: " + player.getPosition().x + " Interpolated Y: " + player.getPosition().y, 50, 190);
- 	        font.draw(batch, "Projected Mouse: " + myViewport.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0)).x + ", " +  myViewport.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0)).y, 50, 210);
+            font.draw(batch, "Width/Height: " + Gdx.graphics.getWidth() + ", " + Gdx.graphics.getHeight(), 50, 250);
+            font.draw(batch, "Viewport Position: " + myViewport.getScreenX() + ", " + myViewport.getScreenY() , 50, 270);
+            font.draw(batch, "Viewport WH: " + myViewport.getScreenWidth() + ", " + myViewport.getScreenHeight() , 50, 290);
+            font.draw(batch, "Camera Viewport WH: " + camera.viewportWidth + ", " + camera.viewportHeight, 50,310);
 
- 	        font.draw(batch, "Width/Height: " + Gdx.graphics.getWidth() + ", " + Gdx.graphics.getHeight(), 50, 250);
- 	        font.draw(batch, "Viewport Position: " + myViewport.getScreenX() + ", " + myViewport.getScreenY() , 50, 270);
- 	        font.draw(batch, "Viewport WH: " + myViewport.getScreenWidth() + ", " + myViewport.getScreenHeight() , 50, 290);
- 	        font.draw(batch, "Camera Viewport WH: " + camera.viewportWidth + ", " + camera.viewportHeight, 50,310);
-
- 	        batch.end();
- 	        batch.setProjectionMatrix(camera.combined);
+            batch.end();
+            batch.setProjectionMatrix(camera.combined);
          }
 
         myViewport.apply();
@@ -514,6 +507,7 @@ public class GameScreen implements Screen {
                         collisionFDef.shape = box2DPolylineShape;
                     }
                     allGroundBody.createFixture(collisionFDef);
+                    collisionFDef.shape.dispose();
                 }
             }
         }
@@ -607,19 +601,13 @@ public class GameScreen implements Screen {
         chainShape.dispose();
         return allGroundBody;
     }
-/*
-    public int getStaticTile(int tx, int ty) {
-        if (tx < 0 || tx >= staticGrid.length || ty < 0 || ty >= staticGrid[0].length)
-            return 0;
-        return staticGrid[tx][ty];
-    }
-*/
+
     @Override
     public void resize(int width, int height) {
         myViewport.update(width, height);
         hudViewport.update(width, height);
-        debugCamera.viewportWidth = Constants.toMeters(width / myViewport.getScale());
-        debugCamera.viewportHeight = Constants.toMeters(height / myViewport.getScale());
+        debugCamera.viewportWidth = Constants.toMeters(myViewport.getWorldWidth());//Constants.toMeters(width / myViewport.getScale());
+        debugCamera.viewportHeight = Constants.toMeters(myViewport.getWorldHeight());//Constants.toMeters(height / myViewport.getScale());
         debugCamera.update();
     }
 
@@ -666,6 +654,9 @@ public class GameScreen implements Screen {
         stage.dispose();
         font.dispose();
         batch.dispose();
+        debugRenderer.dispose();
+        shapes.dispose();
+        map.dispose();
     }
 
     public void setDebugRendererDrawInactive(boolean draw){

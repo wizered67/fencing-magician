@@ -19,8 +19,8 @@ public class GUIManager {
 	private Skin skin;
 	private static Stage stage;
 	
-	public GUIManager(Stage stage){
-		this.stage = stage;
+	public GUIManager(Stage st){
+		stage = st;
 		skin = new Skin();
  		// Generate a 1x1 white texture and store it in the skin named "white".
  		Pixmap pixmap = new Pixmap(1, 1, Format.RGBA8888);
@@ -44,9 +44,9 @@ public class GUIManager {
 			textButtonStyle.font = skin.getFont("default");
 			skin.add("default", textButtonStyle);
 			final TextButton button = new TextButton("Click me!", skin);
-			//button.setPosition(40, 40);
-			//button.setSize(60, 60);
-			table.add(button).pad(20).expand().bottom().left();
+			button.setPosition(40, 40);
+			button.setSize(60, 60);
+			//table.add(button).pad(20).expand().bottom().left();
 			stage.addActor(button);
 			// Add a listener to the button. ChangeListener is fired when the button's checked state changes, eg when clicked,
 			// Button#setChecked() is called, via a key press, etc. If the event.cancel() is called, the checked state will be reverted.
