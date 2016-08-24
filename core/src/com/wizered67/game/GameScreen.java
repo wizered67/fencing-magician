@@ -331,6 +331,11 @@ public class GameScreen implements Screen {
             shapes.begin(ShapeType.Filled);
             shapes.setColor(Color.ORANGE);
             shapes.circle(Constants.toPixels(player.getX()), Constants.toPixels(player.getY()), 4);
+
+            for (Entity e : player.getTaggedEntities()){
+                shapes.setColor(Color.NAVY);
+                shapes.circle(Constants.toPixels(e.getX()), Constants.toPixels(e.getY()), 8);
+            }
             //shapes.line(0f, Constants.toPixels(testPlatform.getPosition().y + ((Entity)testPlatform.getUserData()).getBoundingHeight() / 2) ,800,Constants.toPixels(testPlatform.getPosition().y + ((Entity)testPlatform.getUserData()).getBoundingHeight() / 2));
             //
             //
@@ -359,10 +364,15 @@ public class GameScreen implements Screen {
 
 
         doPhysicsStep(delta);
+        updateGUI(delta);
         renderHud(delta);
         updateInput();
     }
 
+
+    private void updateGUI(float delta){
+        GUIManager.update(delta);
+    }
 
     private void doPhysicsStep(float deltaTime) {
         // fixed time step
@@ -609,6 +619,7 @@ public class GameScreen implements Screen {
         debugCamera.viewportWidth = Constants.toMeters(myViewport.getWorldWidth());//Constants.toMeters(width / myViewport.getScale());
         debugCamera.viewportHeight = Constants.toMeters(myViewport.getWorldHeight());//Constants.toMeters(height / myViewport.getScale());
         debugCamera.update();
+        GUIManager.resize(width, height);
     }
 
     public boolean inWorld(Rectangle rect) {

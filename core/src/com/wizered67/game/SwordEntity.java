@@ -3,6 +3,8 @@ package com.wizered67.game;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 
+import java.util.ArrayList;
+
 /**
  * Created by Adam on 8/12/2016.
  */
@@ -65,6 +67,9 @@ public class SwordEntity extends Entity {
                 enemy.setStun(60);
                 enemy.damage(1);
                 enemy.getBody().setLinearDamping(1f);
+                if (creator instanceof PlayerEntity){
+                    ((PlayerEntity) creator).tagEntity(enemy);
+                }
             }
         }
     }

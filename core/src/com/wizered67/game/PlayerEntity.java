@@ -29,6 +29,7 @@ public class PlayerEntity extends Entity{
 	private int movementPreventionTimer = 0;
 	private int attackCooldown = 0;
 	private int previousDirectionTimer = 5;
+	private ArrayList<Entity> taggedEntities = new ArrayList<Entity>();
 
 	public PlayerEntity(String id, GameScreen screen){
 		super();
@@ -439,5 +440,15 @@ public class PlayerEntity extends Entity{
     public void postSolveCollision(ContactData c, ContactImpulse impulse) {
 
     }
+
+	public ArrayList<Entity> getTaggedEntities() {
+		return taggedEntities;
+	}
+
+	public void tagEntity(Entity e) {
+		if (!taggedEntities.contains(e)){
+			taggedEntities.add(e);
+		}
+	}
 
 }
