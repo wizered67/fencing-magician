@@ -1,4 +1,4 @@
-package com.wizered67.game;
+package com.wizered67.game.Entities;
 
 
 import com.badlogic.gdx.Gdx;
@@ -6,9 +6,15 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.wizered67.game.Collisions.ContactData;
+import com.wizered67.game.Constants;
+import com.wizered67.game.EntityManager;
+import com.wizered67.game.Enums.Direction;
+import com.wizered67.game.GameManager;
+import com.wizered67.game.Screens.GameScreen;
+import com.wizered67.game.WorldManager;
 
 import java.util.ArrayList;
 

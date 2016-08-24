@@ -1,6 +1,7 @@
-package com.wizered67.game;
+package com.wizered67.game.Collisions;
 
 import com.badlogic.gdx.physics.box2d.*;
+import com.wizered67.game.Entities.Entity;
 
 /**
  * MyCollisionListener - Custom ContactListener that processes collisions

@@ -1,8 +1,13 @@
-package com.wizered67.game;
+package com.wizered67.game.Entities;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.wizered67.game.Collisions.ContactData;
+import com.wizered67.game.Constants;
+import com.wizered67.game.EntityManager;
+import com.wizered67.game.Enums.Direction;
+import com.wizered67.game.WorldManager;
 
 /**
  * Created by Adam on 8/13/2016.

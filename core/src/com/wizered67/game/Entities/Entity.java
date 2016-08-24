@@ -1,4 +1,4 @@
-package com.wizered67.game;
+package com.wizered67.game.Entities;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -6,6 +6,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.Manifold;
+import com.wizered67.game.Collisions.ContactData;
+import com.wizered67.game.Constants;
+import com.wizered67.game.Inputs.InputInfo;
 
 import java.util.HashMap;
 

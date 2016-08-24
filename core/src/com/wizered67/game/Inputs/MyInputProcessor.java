@@ -1,8 +1,7 @@
-package com.wizered67.game;
+package com.wizered67.game.Inputs;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.wizered67.game.Entities.Entity;
 
 import java.util.ArrayList;
 import java.util.HashMap;

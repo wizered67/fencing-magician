@@ -1,6 +1,8 @@
 package com.wizered67.game;
 
 import com.badlogic.gdx.physics.box2d.Body;
+import com.wizered67.game.Entities.Entity;
+import com.wizered67.game.Entities.PlayerEntity;
 
 import java.util.ArrayList;
 import java.util.HashMap;

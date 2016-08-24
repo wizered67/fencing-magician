@@ -1,4 +1,4 @@
-package com.wizered67.game;
+package com.wizered67.game.Enums;
 
 /**
  * Animations Enum - Enum to store different types of animations.

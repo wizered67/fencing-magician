@@ -1,4 +1,4 @@
-package com.wizered67.game;
+package com.wizered67.game.Enums;
 
 import com.badlogic.gdx.math.Vector2;
 
@@ -22,12 +22,12 @@ public enum Direction {
         this.box2dDir = box2dDir;
     }
 
-    Vector2 getVector(){
+    public Vector2 getVector(){
         return directionVector.cpy();
     }
-    double getBox2dDir() {return box2dDir; }
+    public double getBox2dDir() {return box2dDir; }
 
-    static Direction getDirectionFromVector(Vector2 vector){
+    public static Direction getDirectionFromVector(Vector2 vector){
         for (Direction d : Direction.values()){
             if (d.getVector().x == vector.x && d.getVector().y == vector.y){
                 return d;

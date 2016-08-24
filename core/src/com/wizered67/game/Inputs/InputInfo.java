@@ -1,4 +1,4 @@
-package com.wizered67.game;
+package com.wizered67.game.Inputs;
 
 public class InputInfo {
 	public float touchX = 0;

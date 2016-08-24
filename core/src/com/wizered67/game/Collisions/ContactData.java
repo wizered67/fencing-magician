@@ -1,4 +1,4 @@
-package com.wizered67.game;
+package com.wizered67.game.Collisions;
 
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.Fixture;

@@ -1,4 +1,4 @@
-package com.wizered67.game;
+package com.wizered67.game.Screens;
 
 
 import com.badlogic.gdx.Gdx;
@@ -27,6 +27,12 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.wizered67.game.*;
+import com.wizered67.game.Entities.CircleEntity;
+import com.wizered67.game.Entities.Entity;
+import com.wizered67.game.Entities.PlayerEntity;
+import com.wizered67.game.Entities.TempEnemy;
+import com.wizered67.game.Inputs.MyInputProcessor;
 
 import java.util.ArrayList;
 import java.util.Collections;

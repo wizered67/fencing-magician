@@ -1,6 +1,8 @@
 package com.wizered67.game;
 
 import com.badlogic.gdx.physics.box2d.World;
+import com.wizered67.game.Collisions.MyCollisionListener;
+import com.wizered67.game.Entities.Entity;
 
 import java.util.ArrayList;
 

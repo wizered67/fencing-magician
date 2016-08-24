@@ -1,7 +1,8 @@
-package com.wizered67.game;
+package com.wizered67.game.Entities;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.wizered67.game.Enums.Animations;
 
 import java.util.HashMap;
 

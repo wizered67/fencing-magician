@@ -1,4 +1,4 @@
-package com.wizered67.game;
+package com.wizered67.game.Entities;
 
 /**
  * Created by Adam on 8/13/2016.

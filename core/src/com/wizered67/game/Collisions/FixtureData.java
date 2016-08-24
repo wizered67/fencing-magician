@@ -1,4 +1,7 @@
-package com.wizered67.game;
+package com.wizered67.game.Collisions;
+
+import com.wizered67.game.Enums.Attributes;
+import com.wizered67.game.Enums.Fixtures;
 
 import java.util.HashMap;
 
