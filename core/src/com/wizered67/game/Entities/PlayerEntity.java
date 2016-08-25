@@ -159,7 +159,7 @@ public class PlayerEntity extends Entity{
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
 			GameScreen gs = ((GameScreen) GameManager.game.getScreen());
-			if (gs.getMapName() != "grasslands1.tmx")
+			if (!gs.getMapName().equals("grasslands1.tmx"))
 				gs.loadMap("grasslands1.tmx");
 			else
 				gs.loadMap("testmap.tmx");
@@ -173,6 +173,12 @@ public class PlayerEntity extends Entity{
 		boolean justSpace = getInputPressed(Input.Keys.SPACE, true);
 		//boolean attackKey = Gdx.input.justTouched();
 		boolean attackKey = getInputPressed(Input.Keys.H, true);
+		boolean specialAttackKey = getInputPressed(Input.Keys.J, true);
+
+		float speed = walkSpeed;
+		if ((right || left) && !(right && left) && (up || down) && !(up && down)){
+			speed /= Math.sqrt(2);
+		}
 		walking = false;
 		int xDir = 0;
 		int yDir = 0;
@@ -181,7 +187,7 @@ public class PlayerEntity extends Entity{
 			if (getVelocity().x < 0){
 				body.setLinearVelocity(0.0f, getVelocity().y);
 			}
-			body.applyLinearImpulse(walkSpeed * body.getMass(), 0, getX(), getY(), true);
+			body.applyLinearImpulse(speed * body.getMass(), 0, getX(), getY(), true);
 			walking = true;
 		}
 		if (left && !right){
@@ -189,7 +195,7 @@ public class PlayerEntity extends Entity{
 			if (getVelocity().x > 0){
 				body.setLinearVelocity(0.0f, getVelocity().y);
 			}
-			body.applyLinearImpulse(-walkSpeed * body.getMass(), 0, getX(), getY(), true);
+			body.applyLinearImpulse(-speed * body.getMass(), 0, getX(), getY(), true);
 			walking = true;
 		}
 
@@ -198,7 +204,7 @@ public class PlayerEntity extends Entity{
             if (getVelocity().y < 0){
                 body.setLinearVelocity(getVelocity().x, 0.0f);
             }
-            body.applyLinearImpulse(0, walkSpeed * body.getMass(), getX(), getY(), true);
+            body.applyLinearImpulse(0, speed * body.getMass(), getX(), getY(), true);
             walking = true;
         }
         if (down && !up){
@@ -206,7 +212,7 @@ public class PlayerEntity extends Entity{
             if (getVelocity().y > 0){
                 body.setLinearVelocity(getVelocity().x, 0.0f);
             }
-            body.applyLinearImpulse(0, -walkSpeed * body.getMass(), getX(), getY(), true);
+            body.applyLinearImpulse(0, -speed * body.getMass(), getX(), getY(), true);
             walking = true;
         }
 
@@ -221,13 +227,16 @@ public class PlayerEntity extends Entity{
             body.setLinearVelocity(getVelocity().x, 0.0f);
             //walking = false;
         }
-		
-		if (Math.abs(getVelocity().x) > Constants.MAX_VELOCITY){
-			body.setLinearVelocity(Constants.MAX_VELOCITY * Math.signum(getVelocity().x), getVelocity().y);
+		float max = Constants.MAX_VELOCITY;
+		if (xDir != 0 && yDir != 0){
+			max /= Math.sqrt(2);
+		}
+		if (Math.abs(getVelocity().x) > max){
+			body.setLinearVelocity(max * Math.signum(getVelocity().x), getVelocity().y);
 		}
 
-        if (Math.abs(getVelocity().y) > Constants.MAX_VELOCITY){
-            body.setLinearVelocity(getVelocity().x, Constants.MAX_VELOCITY * Math.signum(getVelocity().y));
+        if (Math.abs(getVelocity().y) > max){
+            body.setLinearVelocity(getVelocity().x, max * Math.signum(getVelocity().y));
         }
 		if (xDir != 0 || yDir != 0) {
 			directionVector.set(xDir, yDir);
@@ -243,7 +252,7 @@ public class PlayerEntity extends Entity{
 			}
 			else if (yDir == 1)
 				direction = Direction.UP;
-			else if (yDir == -1)
+			else
 				direction = Direction.DOWN;
 		}
 		else {
@@ -291,15 +300,18 @@ public class PlayerEntity extends Entity{
 			body.applyLinearImpulse(new Vector2((float)Math.cos(radiansAngle), (float)Math.sin(radiansAngle)).scl(attackImpulse), body.getPosition(), true);
 		}
 		//System.out.println(direction);
-		final ArrayList<Fixture> collided = new ArrayList<Fixture>();
-		RayCastCallback raycastCallback = new RayCastCallback() {
-			@Override
-			public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
-				collided.add(fixture);
-				return 1;
-			}
-		};
-		if (previousDirectionTimer <= 0) {
+
+		if (specialAttackKey){
+			double box2dAngle = direction.getBox2dDir();
+			double radiansAngle = box2dAngle + Math.PI / 2;
+			double angleBetween = Math.toDegrees(radiansAngle);
+
+			Vector2 spellPosition = new Vector2(getX() + (float)Math.cos(Math.toRadians(angleBetween)) * boundingWidth / 2,
+					getY() + (float)Math.sin(Math.toRadians(angleBetween)) * boundingHeight / 2);
+			EntityManager.addEntity(new HomingProjectileEntity(this, spellPosition.x, spellPosition.y, Constants.toMeters(16), box2dAngle, direction));
+		}
+
+		if (previousDirectionTimer <= 0) { //keep pointing diagonally if quickly released in succession
 			previousDirection = direction;
 			previousDirectionTimer = 5;
 		}
@@ -334,7 +346,11 @@ public class PlayerEntity extends Entity{
 	}
 
 	public void teleport(){
-		final float teleportDistance = Constants.toMeters(96);
+
+		final Vector2 teleportDistance = new Vector2(Constants.toMeters(96), 0); //making a vector so it can be final
+		if (directionVector.x != 0 && directionVector.y != 0)
+			teleportDistance.x /= Math.sqrt(2);
+
 		//Vector2 p1 = body.getPosition().cpy().add()
 		//Set first starting point to the side of the body corresponding to the center minus half the bounding shape and second to plus.
 		// Points are perpendicular to raycast lines. Eg. If moving down points are to left and right.
@@ -345,12 +361,12 @@ public class PlayerEntity extends Entity{
 				body.getPosition().cpy().add(boundingWidth / 2 * directionVector.y, boundingHeight / 2 * directionVector.x);
 		//Set ending points to corresponding starting points plus the teleport distance in the direction of the direction vector
 		Vector2 firstEndingPoint =
-				firstStartingPoint.cpy().add(teleportDistance * directionVector.x, teleportDistance * directionVector.y);
+				firstStartingPoint.cpy().add(teleportDistance.x * directionVector.x, teleportDistance.x * directionVector.y);
 		Vector2 secondEndingPoint =
-				secondStartingPoint.cpy().add(teleportDistance * directionVector.x, teleportDistance * directionVector.y);
+				secondStartingPoint.cpy().add(teleportDistance.x * directionVector.x, teleportDistance.x * directionVector.y);
 		System.out.println(firstStartingPoint + ", " + firstEndingPoint + "| " + secondStartingPoint + ", " + secondEndingPoint);
 		//Tentatively set teleport location to current location with the teleport distance multiplied by the direction vector added
-		final Vector2 teleportVector = new Vector2(directionVector.x * teleportDistance, directionVector.y * teleportDistance);
+		final Vector2 teleportVector = new Vector2(directionVector.x * teleportDistance.x, directionVector.y * teleportDistance.x);
 		teleportVector.add(directionVector.x * boundingWidth / 2, directionVector.y * boundingHeight / 2);
 		RayCastCallback raycastCallback = new RayCastCallback() {
 			float latestFraction = 100;
@@ -358,7 +374,7 @@ public class PlayerEntity extends Entity{
 			public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
 				if (!fixture.isSensor() && fixture.getFilterData().categoryBits == Constants.CATEGORY_SCENERY){
 					if (fraction < latestFraction) {
-						teleportVector.set(directionVector.x * fraction * teleportDistance, directionVector.y * fraction * teleportDistance);
+						teleportVector.set(directionVector.x * fraction * teleportDistance.x, directionVector.y * fraction * teleportDistance.x);
 						latestFraction = fraction;
 					}
 				}
@@ -422,8 +438,8 @@ public class PlayerEntity extends Entity{
 			}
 
 			if (raycastCollision.x != 0 || raycastCollision.y != 0){
-				int xSign = 1;
-				int ySign = 1;
+				int xSign;
+				int ySign;
 				if (p1.x <= points[0].x && p2.x <= points[0].x)
 					xSign = -1;
 				else

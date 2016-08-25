@@ -64,5 +64,13 @@ public class Constants {
 	public static Vector3 toMeters(Vector3 pixelsVector){
 		return pixelsVector.cpy().scl(1f / PPM);
 	}
+
+	public static float toBox2DAngle(float angle){
+		return (float)(angle + Math.PI / 2);
+	}
+
+	public static float toBox2DAngle(double angle){
+		return toBox2DAngle((float) angle);
+	}
 	
 }

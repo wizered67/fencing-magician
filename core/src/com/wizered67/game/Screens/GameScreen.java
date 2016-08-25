@@ -633,6 +633,11 @@ public class GameScreen implements Screen {
         return worldRect.overlaps(rect);
     }
 
+    public boolean inWorld(Vector2 pt) {
+        Rectangle worldRect = new Rectangle(0, 0, mapWidthInPixels, mapHeightInPixels);
+        return worldRect.contains(pt);
+    }
+
     @Override
     public void show() {
         // called when this screen is set as the screen with game.setScreen();
