@@ -148,9 +148,9 @@ public class PlayerEntity extends Entity{
     }
 
     public void updatePhysics(float delta){
-		if (movementPreventionTimer > 0 || attackCooldown > 0){
-			return;
-		}
+		//if (movementPreventionTimer > 0 || attackCooldown > 0){
+		//	return;
+		//}
 
 		if (Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT)){
 			GameScreen gs = ((GameScreen) GameManager.game.getScreen());
@@ -399,7 +399,8 @@ public class PlayerEntity extends Entity{
 
     @Override
     public void preSolveCollision(ContactData c, Manifold m) {
-
+		if (c.getOther().getFilterData().categoryBits != Constants.CATEGORY_SCENERY)
+			return;
 		Vector2[] points = c.getContact().getWorldManifold().getPoints();
 
 		final Fixture currentCollision = c.getOther();

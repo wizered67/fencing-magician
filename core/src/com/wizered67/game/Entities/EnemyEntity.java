@@ -1,5 +1,12 @@
 package com.wizered67.game.Entities;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.wizered67.game.EntityManager;
+
+import java.util.ArrayList;
+
 /**
  * Created by Adam on 8/13/2016.
  */
@@ -26,6 +33,13 @@ public abstract class EnemyEntity extends Entity {
             stunTimer = Math.max(0, stunTimer - 1);
             if (stunTimer <= 0)
                 stunned = false;
+        }
+    }
+
+    public void destroy(){
+        ArrayList<Entity> tagged = EntityManager.getPlayer().getTaggedEntities();
+        if (tagged.contains(this)){
+            tagged.remove(this);
         }
     }
 }

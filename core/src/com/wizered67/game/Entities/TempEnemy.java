@@ -1,5 +1,8 @@
 package com.wizered67.game.Entities;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
@@ -20,6 +23,7 @@ public class TempEnemy extends EnemyEntity {
     private Direction currentDirection = Direction.UP;
 
     public TempEnemy(float x, float y, float width, float height, float mapWidth, float mapHeight){
+        super();
         this.x = x;
         this.y = y;
         this.width = width;
@@ -29,6 +33,10 @@ public class TempEnemy extends EnemyEntity {
         WorldManager.addNewObjectBody(this);
         health = 3;
         persistant = true;
+        sprite = new Sprite(new Texture(Gdx.files.internal("batman.png")));
+        sprite.setOriginCenter();
+        sprite.setScale(1f, 1f);
+        isAnimated = false;
     }
 
     public void makeBody(){
@@ -101,7 +109,8 @@ public class TempEnemy extends EnemyEntity {
             currentDirection = Direction.getDirectionFromVector(currentDirection.getVector().scl(-1));
         }
         Vector2 directionVector = currentDirection.getVector();
-        body.setLinearVelocity(3.5f * directionVector.x, 3.5f * directionVector.y);
+        float speed = 0;
+        body.setLinearVelocity(speed * directionVector.x, speed * directionVector.y);
     }
 
     @Override
@@ -112,6 +121,6 @@ public class TempEnemy extends EnemyEntity {
 
     @Override
     public void destroy() {
-
+        super.destroy();
     }
 }

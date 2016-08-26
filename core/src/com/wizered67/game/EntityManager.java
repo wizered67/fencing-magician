@@ -74,6 +74,7 @@ public class EntityManager {
                 }
             }
             allEntities.get(currentMap).add(player);
+            player.getTaggedEntities().clear();
         }
 
         for (Entity e : addList){

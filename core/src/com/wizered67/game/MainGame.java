@@ -8,7 +8,7 @@ public class MainGame extends Game {
 	@Override
 	public void create() {
 		GameManager.init(this);
-		gameScreen = new GameScreen(this);
+		gameScreen = new GameScreen();
         setScreen(gameScreen);       
 	}
 	

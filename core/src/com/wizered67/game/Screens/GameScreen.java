@@ -4,12 +4,13 @@ package com.wizered67.game.Screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.maps.MapLayer;
@@ -40,7 +41,6 @@ import java.util.Comparator;
 
 public class GameScreen implements Screen {
     //800x600
-    private MainGame game;
     private SpriteBatch batch;
     private OrthographicCamera camera;
     private OrthographicCamera hudCamera;
@@ -68,6 +68,12 @@ public class GameScreen implements Screen {
     private GUIManager gui;
     private final Vector3 cameraTarget = new Vector3(0, 0, 0);
     private boolean worldUpdate = false;
+    private ShaderProgram outlineShader;
+    private ShaderProgram blurShader;
+    private Vector2 outlineAlpha = new Vector2(1, 0);
+    private Vector2 stepSize = new Vector2(0, 1.5f);
+    private FrameBuffer blurTargetA, blurTargetB;
+    private TextureRegion fboRegion;
 
     public String getMapName() {
         return mapName;
@@ -81,13 +87,12 @@ public class GameScreen implements Screen {
         }
     };
 
-    // constructor to keep a reference to the main Game class
-    public GameScreen(MainGame game) {
-        this.game = game;
 
+    public GameScreen() {
         Box2D.init();
         WorldManager.init();
         initRendering();
+        initShaders();
         loadMap("testmap.tmx");
         initInput();
         setupGUI();
@@ -186,6 +191,24 @@ public class GameScreen implements Screen {
             }
         }
         return staticGrid;
+    }
+
+    public void initShaders(){
+        final String vertexShader = Gdx.files.internal("default_vertex.glsl").readString();
+        final String outlineFragmentShader = Gdx.files.internal("outline_pixel.glsl").readString();
+        final String blurFragmentShader = Gdx.files.internal("blur_pixel.glsl").readString();
+        outlineShader = new ShaderProgram(vertexShader, outlineFragmentShader);
+        blurShader = new ShaderProgram(vertexShader, blurFragmentShader);
+
+        System.out.println(outlineShader.getLog());
+        System.out.println(blurShader.getLog());
+        ShaderProgram.pedantic = false;
+        int FBO_SIZE = 1024;
+        blurTargetA = new FrameBuffer(Pixmap.Format.RGBA8888, FBO_SIZE, FBO_SIZE, false);
+        blurTargetB = new FrameBuffer(Pixmap.Format.RGBA8888, FBO_SIZE, FBO_SIZE, false);
+        fboRegion = new TextureRegion(blurTargetA.getColorBufferTexture());
+        fboRegion.flip(false, true);
+
     }
 
     public void initInput(){
@@ -364,6 +387,106 @@ public class GameScreen implements Screen {
         batch.end();
         for (int i = layersAbovePlayer; i < mapNumLayers; i++)
             mapRenderer.render(new int[] {i});
+
+        /*
+        outlineAlpha.x = MathUtils.lerp(outlineAlpha.x, outlineAlpha.y, 0.1f);
+        System.out.println(outlineAlpha.x);
+        if (outlineAlpha.x >= .99)
+            outlineAlpha.y = 0;
+        if (outlineAlpha.x <= 1e-2)
+            outlineAlpha.y = 1;
+            */
+        //stepSize.x = MathUtils.lerp(stepSize.x, stepSize.y, 0.1f);
+        if (stepSize.y == 0){
+            stepSize.x -= 0.05;
+        }
+        else{
+            stepSize.x += 0.05;
+        }
+        if (stepSize.x >= 1.75){
+            stepSize.y = 0;
+        }
+        if (stepSize.x <= 0.25){
+            stepSize.y = 1.75f;
+        }
+                /*
+        blurTargetA.begin();
+
+        //Clear FBO A with an opaque colour to minimize blending issues
+        Gdx.gl.glClearColor(0.5f, 0.5f, 0.5f, 0f);
+        Gdx.gl.glClear(Gdx.gl.GL_COLOR_BUFFER_BIT);
+*/
+        //send the new projection matrix (FBO size) to the default shader
+        //batch.resize(blurTargetA.getWidth(), blurTargetA.getHeight());
+        //batch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), blurTargetA.getHeight()));
+        //now we can start our batch
+        batch.begin();
+
+        //render our scene fully to FBO A
+
+        //batch.begin();
+        for (Entity entity : EntityManager.getPlayer().getTaggedEntities()) {
+            if (entity != null) {
+                if (entity.getSprite() != null && entity.getSprite().getTexture() != null) {
+                    entity.getSprite().getTexture().setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge);
+                    outlineShader.begin();
+                    outlineShader.setUniformf("step_size", stepSize.x / entity.getSprite().getWidth(), stepSize.x / entity.getSprite().getHeight());
+                    outlineShader.setUniformf("current_alpha", 1);
+                    outlineShader.end();
+                    batch.setShader(outlineShader);
+                    entity.getSprite().draw(batch);
+                    batch.setShader(null);
+                }
+            }
+        }
+        //flush the batch, i.e. render entities to GPU
+       /*
+        batch.flush();
+
+        //After flushing, we can finish rendering to FBO target A
+        blurTargetA.end();
+
+        batch.setShader(blurShader);
+
+        //since we never called batch.end(), we should still be drawing
+        //which means are blurShader should now be in use
+
+        //ensure the direction is along the X-axis only
+        blurShader.setUniformf("dir", 1f, 0f);
+
+        //update blur amount based on touch input
+        blurShader.setUniformf("radius", 2f);
+
+        //our first blur pass goes to target B
+        blurTargetB.begin();
+        //we want to render FBO target A into target B
+        fboRegion.setTexture(blurTargetA.getColorBufferTexture());
+        //draw the scene to target B with a horizontal blur effect
+        batch.draw(fboRegion, 0, 0);
+        //flush the batch before ending the FBO
+        batch.flush();
+        //finish rendering target B
+        blurTargetB.end();
+
+        //now we can render to the screen using the vertical blur shader
+
+        //update our projection matrix with the screen size
+        batch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+
+        //update the blur only along Y-axis
+        blurShader.setUniformf("dir", 0f, 1f);
+
+        //update the Y-axis blur radius
+        blurShader.setUniformf("radius", 2f);
+
+        //draw target B to the screen with a vertical blur effect
+        fboRegion.setTexture(player.getSprite().getTexture()); //blurTargetB.getColorBufferTexture()
+        batch.draw(fboRegion, 0, 0);
+*/
+        //reset to default shader without blurs
+        batch.setShader(null);
+
+        batch.end();
         if (Constants.DEBUG) {
             debugRenderer.render(WorldManager.world, debugCamera.combined);
         }
