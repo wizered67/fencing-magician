@@ -1,13 +1,17 @@
 package com.wizered67.game.Entities;
 
 
+import box2dLight.ChainLight;
+import box2dLight.PointLight;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.sun.javafx.geom.Vec4f;
 import com.wizered67.game.Collisions.ContactData;
 import com.wizered67.game.Constants;
 import com.wizered67.game.EntityManager;
@@ -355,27 +359,45 @@ public class PlayerEntity extends Entity{
 		//Set first starting point to the side of the body corresponding to the center minus half the bounding shape and second to plus.
 		// Points are perpendicular to raycast lines. Eg. If moving down points are to left and right.
 		//
-		Vector2 firstStartingPoint =
-				body.getPosition().cpy().add(-boundingWidth / 2 * directionVector.y, -boundingHeight / 2 * directionVector.x);
-		Vector2 secondStartingPoint =
-				body.getPosition().cpy().add(boundingWidth / 2 * directionVector.y, boundingHeight / 2 * directionVector.x);
-		//Set ending points to corresponding starting points plus the teleport distance in the direction of the direction vector
-		Vector2 firstEndingPoint =
-				firstStartingPoint.cpy().add(teleportDistance.x * directionVector.x, teleportDistance.x * directionVector.y);
-		Vector2 secondEndingPoint =
-				secondStartingPoint.cpy().add(teleportDistance.x * directionVector.x, teleportDistance.x * directionVector.y);
+		System.out.println(directionVector);
+		Vector2 firstStartingPoint, secondStartingPoint, firstEndingPoint, secondEndingPoint;
+		/*
+		if (directionVector.x != 0 && directionVector.y != 0){
+			firstStartingPoint =
+					body.getPosition().cpy().add(boundingWidth / 2, -1 * (directionVector.x / directionVector.y) * boundingHeight / 2);
+			secondStartingPoint =
+					body.getPosition().cpy().add( -boundingWidth / 2,  (directionVector.x / directionVector.y) * boundingHeight / 2);
+			//Set ending points to corresponding starting points plus the teleport distance in the direction of the direction vector
+			firstEndingPoint =
+					firstStartingPoint.cpy().add(teleportDistance.x * directionVector.x, teleportDistance.x * directionVector.y);
+			secondEndingPoint =
+					secondStartingPoint.cpy().add(teleportDistance.x * directionVector.x, teleportDistance.x * directionVector.y);
+		}
+		else {*/
+			firstStartingPoint =
+					body.getPosition().cpy().add(-boundingWidth / 2 * directionVector.y, -boundingHeight / 2 * directionVector.x);
+			secondStartingPoint =
+					body.getPosition().cpy().add(boundingWidth / 2 * directionVector.y, boundingHeight / 2 * directionVector.x);
+			//Set ending points to corresponding starting points plus the teleport distance in the direction of the direction vector
+			firstEndingPoint =
+					firstStartingPoint.cpy().add(teleportDistance.x * directionVector.x, teleportDistance.x * directionVector.y);
+			secondEndingPoint =
+					secondStartingPoint.cpy().add(teleportDistance.x * directionVector.x, teleportDistance.x * directionVector.y);
+		//}
 		System.out.println(firstStartingPoint + ", " + firstEndingPoint + "| " + secondStartingPoint + ", " + secondEndingPoint);
 		//Tentatively set teleport location to current location with the teleport distance multiplied by the direction vector added
 		final Vector2 teleportVector = new Vector2(directionVector.x * teleportDistance.x, directionVector.y * teleportDistance.x);
 		teleportVector.add(directionVector.x * boundingWidth / 2, directionVector.y * boundingHeight / 2);
 		RayCastCallback raycastCallback = new RayCastCallback() {
-			float latestFraction = 100;
+			float latestFraction = 1;
 			@Override
 			public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal, float fraction) {
+				System.out.println("testingo");
 				if (!fixture.isSensor() && fixture.getFilterData().categoryBits == Constants.CATEGORY_SCENERY){
 					if (fraction < latestFraction) {
 						teleportVector.set(directionVector.x * fraction * teleportDistance.x, directionVector.y * fraction * teleportDistance.x);
 						latestFraction = fraction;
+						System.out.println(latestFraction);
 					}
 				}
 				return fraction;
@@ -383,7 +405,16 @@ public class PlayerEntity extends Entity{
 		};
 		WorldManager.world.rayCast(raycastCallback, firstStartingPoint, firstEndingPoint);
 		WorldManager.world.rayCast(raycastCallback, secondStartingPoint, secondEndingPoint);
-		teleportVector.sub(directionVector.x * boundingWidth / 2, directionVector.y * boundingHeight / 2);
+		screen.debugLines.add(new Vec4f(Constants.toPixels(firstStartingPoint.x), Constants.toPixels(firstStartingPoint.y), Constants.toPixels(firstEndingPoint.x),
+				Constants.toPixels(firstEndingPoint.y)));
+		screen.debugLines.add(new Vec4f(Constants.toPixels(secondStartingPoint.x), Constants.toPixels(secondStartingPoint.y), Constants.toPixels(secondEndingPoint.x),
+				Constants.toPixels(secondEndingPoint.y)));
+		if (directionVector.x == 0 || directionVector.y == 0) {
+			teleportVector.sub(directionVector.x * boundingWidth / 2, directionVector.y * boundingHeight / 2);
+		}
+		else{
+			//teleportVector.sub(boundingWidth, boundingHeight);
+		}
 		teleportVector.sub(directionVector.x * Constants.toMeters(1), directionVector.y * Constants.toMeters(1));
 		body.setTransform(body.getPosition().add(teleportVector), body.getAngle());
 		body.setLinearVelocity(0, 0);
@@ -471,6 +502,20 @@ public class PlayerEntity extends Entity{
 	public void tagEntity(Entity e) {
 		if (!taggedEntities.contains(e)){
 			taggedEntities.add(e);
+			GameScreen gs = GameManager.getGameScreen();
+			if (gs != null){
+				float[] vertices = new float[4];
+				vertices[0] = -Constants.toMeters(e.getWidth());
+				vertices[1] = 0;
+				vertices[2] = Constants.toMeters(e.getWidth());
+				vertices[3] = 0;
+				ChainLight light = new ChainLight(gs.getRayHandler(), 128, Color.BLUE, Constants.toMeters(32), 0, vertices);
+				/*
+				PointLight light = new PointLight(
+						gs.getRayHandler(), 128, new Color(1,0,0, 1), Constants.toMeters(e.getWidth()), e.getX(), e.getY());
+						*/
+				light.attachToBody(e.getBody());
+			}
 		}
 	}
 

@@ -25,6 +25,7 @@ public class HomingProjectileEntity extends Entity{
     private int deathTimer;
     private Entity creator;
     private Direction direction;
+    private int homingUpdateTimer;
     private Comparator<Entity> distanceComparator = new Comparator<Entity>() {
         @Override
         public int compare(Entity e1, Entity e2) {
@@ -43,6 +44,7 @@ public class HomingProjectileEntity extends Entity{
         this.targetAngle = angle;
         this.direction = direction;
         deathTimer = 0;
+        homingUpdateTimer = 10;
         WorldManager.addNewObjectBody(this);
     }
 
@@ -101,8 +103,10 @@ public class HomingProjectileEntity extends Entity{
             if (!screen.inWorld(Constants.toPixels(body.getPosition())))
                 EntityManager.removeEntity(this);
         }
-
-        homeOnTagged();
+        if (homingUpdateTimer <= 0) {
+            homeOnTagged();
+            homingUpdateTimer = 10;
+        }
         if (targetAngle != angle){
             angle = MathUtils.lerpAngle((float)angle, (float)targetAngle, 0.15f);
         }
@@ -140,6 +144,7 @@ public class HomingProjectileEntity extends Entity{
     @Override
     public void updateTimers() {
         deathTimer = Math.max(deathTimer - 1, 0);
+        homingUpdateTimer = Math.max(homingUpdateTimer - 1, 0);
     }
 
     @Override

@@ -34,14 +34,14 @@ public class CustomMapLoader extends TmxMapLoader {
                 for (int x = 0; x < width; x++) {
                     for (int y = 0; y < height; y++) {
                         TiledMapTileLayer.Cell cell = tileLayer.getCell(x, y);
-                        System.out.println(x + ", " + y);
+                        //System.out.println(x + ", " + y);
                         if (cell != null) {
                             TiledMapTile tile = cell.getTile();
                             String customCollisionBox = tile.getProperties().get("customCollisionBox", String.class);
                             if (customCollisionBox != null && customCollisionBox.equalsIgnoreCase("true")) {
                                 XmlReader.Element elem = collisionTileElements.get(tile.getId());
                                 if (elem != null){
-                                    System.out.println(tile.getProperties().get("test"));
+                                    //System.out.println(tile.getProperties().get("test"));
                                     float oldX = elem.getFloatAttribute("x");
                                     float oldY = elem.getFloatAttribute("y");
                                     //float elemWidth = elem.getFloatAttribute("width");

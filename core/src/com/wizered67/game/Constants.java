@@ -9,7 +9,7 @@ public class Constants {
 	//Debug Settings
 	public final static boolean DEBUG = true;
 	//Game Settings
-	public final static String GAME_NAME = "Template Project";
+	public final static String GAME_NAME = "Arcane Fencing";
 	public final static int DEFAULT_WIDTH = 1024;
 	public final static int DEFAULT_HEIGHT = 576;
 	public final static boolean RESIZABLE = true;
@@ -30,11 +30,13 @@ public class Constants {
 	public final static short CATEGORY_SCENERY = 0x0004;
 	public final static short CATEGORY_PLAYER_ATTACK = 0x0008;
 	public final static short CATEGORY_ENEMY_ATTACK = 0x0016;
+	public final static short CATEGORY_LIGHT = 0x0032;
 	public final static short MASK_PLAYER = CATEGORY_ENEMY | CATEGORY_SCENERY | CATEGORY_ENEMY_ATTACK;
 	public final static short MASK_ENEMY = CATEGORY_PLAYER | CATEGORY_SCENERY | CATEGORY_PLAYER_ATTACK;
 	public final static short MASK_SCENERY = CATEGORY_PLAYER | CATEGORY_SCENERY | CATEGORY_ENEMY | CATEGORY_ENEMY_ATTACK | CATEGORY_PLAYER_ATTACK;
 	public final static short MASK_PLAYER_ATTACK = CATEGORY_ENEMY | CATEGORY_SCENERY | CATEGORY_ENEMY_ATTACK;
 	public final static short MASK_ENEMY_ATTACK = CATEGORY_PLAYER | CATEGORY_SCENERY | CATEGORY_PLAYER_ATTACK;
+	public final static short MASK_LIGHT = CATEGORY_SCENERY;
 
 	public static boolean isRectangle(Object c){
 		return c.getClass().equals(Rectangle.class);

@@ -1,6 +1,10 @@
 package com.wizered67.game.Screens;
 
 
+import box2dLight.DirectionalLight;
+import box2dLight.Light;
+import box2dLight.PointLight;
+import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
@@ -28,6 +32,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.sun.javafx.geom.Vec4f;
 import com.wizered67.game.*;
 import com.wizered67.game.Entities.CircleEntity;
 import com.wizered67.game.Entities.Entity;
@@ -74,6 +79,8 @@ public class GameScreen implements Screen {
     private Vector2 stepSize = new Vector2(0, 1.5f);
     private FrameBuffer blurTargetA, blurTargetB;
     private TextureRegion fboRegion;
+    private RayHandler rayHandler;
+    public ArrayList<Vec4f> debugLines = new ArrayList<Vec4f>();
 
     public String getMapName() {
         return mapName;
@@ -95,6 +102,7 @@ public class GameScreen implements Screen {
         initShaders();
         loadMap("testmap.tmx");
         initInput();
+        initLighting();
         setupGUI();
         float playerX = 300;
         float playerY = 300;
@@ -191,6 +199,24 @@ public class GameScreen implements Screen {
             }
         }
         return staticGrid;
+    }
+
+    public void initLighting(){
+        RayHandler.setGammaCorrection(true);
+        RayHandler.useDiffuseLight(false);
+        rayHandler = new RayHandler(WorldManager.world);
+        rayHandler.useCustomViewport(myViewport.getScreenX(), myViewport.getScreenY(), myViewport.getScreenWidth(), myViewport.getScreenHeight());
+        rayHandler.setAmbientLight(0, 0, 0, 1f);
+        rayHandler.setBlurNum(3);
+        rayHandler.setBlur(true);
+        rayHandler.setShadows(true);
+        Light.setGlobalContactFilter(Constants.CATEGORY_LIGHT, (short) 0, Constants.MASK_LIGHT);
+        //DirectionalLight directionalLight = new DirectionalLight(rayHandler, 128, new Color(1, 1, 1, 0.1f), 0);
+        PointLight light = new PointLight(
+                rayHandler, 128, new Color(1,0,0, 0.8f), Constants.toMeters(256), Constants.toMeters(128), Constants.toMeters(400));
+        //light.setSoft(false);
+        light.update();
+        //rayHandler.
     }
 
     public void initShaders(){
@@ -346,13 +372,13 @@ public class GameScreen implements Screen {
         mapRenderer.setView(camera);
         mapRenderer.render();
         int layersAbovePlayer;
-        String lap = map.getProperties().get("layersAbovePlayer", String.class);
+        Integer lap = map.getProperties().get("layersAbovePlayer", Integer.class);
         if (lap == null){
             layersAbovePlayer = mapNumLayers;
         }
         else
         {
-            layersAbovePlayer = Integer.parseInt(lap);
+            layersAbovePlayer = lap;
         }
         for (int i = 0; i < layersAbovePlayer; i++)
             mapRenderer.render(new int[] {i});
@@ -491,6 +517,13 @@ public class GameScreen implements Screen {
             debugRenderer.render(WorldManager.world, debugCamera.combined);
         }
 
+        rayHandler.setCombinedMatrix(camera.combined.cpy().scl(Constants.PPM), 0, 0, myViewport.getScreenWidth(), myViewport.getScreenHeight());
+        rayHandler.updateAndRender();
+        if (Constants.DEBUG) {
+            for (Vec4f line : debugLines) {
+                drawLine(line.x, line.y, line.z, line.w);
+            }
+        }
 
         doPhysicsStep(delta);
         updateGUI(delta);
@@ -744,6 +777,7 @@ public class GameScreen implements Screen {
     @Override
     public void resize(int width, int height) {
         myViewport.update(width, height);
+        rayHandler.useCustomViewport(myViewport.getScreenX(), myViewport.getScreenY(), myViewport.getScreenWidth(), myViewport.getScreenHeight());
         hudViewport.update(width, height);
         debugCamera.viewportWidth = Constants.toMeters(myViewport.getWorldWidth());//Constants.toMeters(width / myViewport.getScale());
         debugCamera.viewportHeight = Constants.toMeters(myViewport.getWorldHeight());//Constants.toMeters(height / myViewport.getScale());
@@ -802,6 +836,11 @@ public class GameScreen implements Screen {
         debugRenderer.dispose();
         shapes.dispose();
         map.dispose();
+        rayHandler.dispose();
+    }
+
+    public RayHandler getRayHandler(){
+        return rayHandler;
     }
 
     public void setDebugRendererDrawInactive(boolean draw){
