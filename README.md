@@ -10,7 +10,7 @@ The game uses LibGDX, Box2D for collision detection, Box2DLights for lighting ef
 ##Demonstrations
 Note: Gifs may take some time to load and appear slow while first loading. Graphics are not mine. They are placeholder and for testing purposes only.
 
-![gif](fencingMagicianDashShorter.gif)
+![gif](fencingMagicianDashLegacy.gif)
 
 ##Programming
 * Wrote custom extension of LibGDX map loader to load different shapes for collision detection.
