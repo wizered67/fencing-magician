@@ -6,7 +6,9 @@ While this was the original premise for the game, I later began experimenting wi
 
 The game uses LibGDX, Box2D for collision detection, Box2DLights for lighting effects, and Tiled for level editing.
 
-Note: Graphics are not mine. They are placeholder and for testing purposes only.
+
+##Demonstrations
+Note: Gifs may take some time to load and appear slow while first loading. Graphics are not mine. They are placeholder and for testing purposes only.
 
 ![gif](fencingMagicianDashShorter.gif)
 
