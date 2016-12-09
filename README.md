@@ -16,6 +16,9 @@ Using dashes to quickly move around.
 Hitting an enemy with a sword and with the orb.
 ![attack](fencingMagicianAttacks.gif)
 
+Using a magic projectile that homes in on tagged enemies.
+![magic](fencingMagicianProjectile.gif)
+
 
 ##Programming
 * Wrote custom extension of LibGDX map loader to load different shapes for collision detection.
