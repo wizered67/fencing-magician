@@ -17,7 +17,7 @@ Hitting an enemy with a sword and with the orb.
 ![attack](fencingMagicianAttacks.gif)
 
 Using a magic projectile that homes in on tagged enemies.
-![magic](fencingMagicianProjectile.gif)
+![magic](fencingMagicianProjectile2.gif)
 
 
 ##Programming
