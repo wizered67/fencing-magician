@@ -12,6 +12,8 @@ Note: Gifs may take some time to load and appear slow while first loading. Graph
 
 ![gif](fencingMagicianDashLegacy.gif)
 
+![attack](fencingMagicianAttacks.gif)
+
 ##Programming
 * Wrote custom extension of LibGDX map loader to load different shapes for collision detection.
 * Uses shaders for enemy outlines when they're tagged.
