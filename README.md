@@ -10,12 +10,13 @@ The game uses LibGDX, Box2D for collision detection, Box2DLights for lighting ef
 ##Demonstrations
 Note: Gifs may take some time to load and appear slow while first loading. Graphics are not mine. They are placeholder and for testing purposes only.
 
+Using dashes to quickly move around.
 ![gif](fencingMagicianDashLegacy.gif)
 
-Using dashes to quickly move around.
+Hitting an enemy with a sword and with the orb.
 ![attack](fencingMagicianAttacks.gif)
 
-Hitting an enemy with a sword and with the orb.
+
 ##Programming
 * Wrote custom extension of LibGDX map loader to load different shapes for collision detection.
 * Uses shaders for enemy outlines when they're tagged.
