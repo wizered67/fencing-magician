@@ -26,4 +26,4 @@ Using a magic projectile that homes in on tagged enemies.
 * Uses Box2D raycasting for dash move.
 * Wrote code for sliding along rectangular collision shapes.
 
-The code for the project can be seen [here] (https://github.com/wizered67/fencing-magician/tree/master/core/src/com/wizered67/game).
+The code for the project can be seen [here](https://github.com/wizered67/fencing-magician/tree/master/core/src/com/wizered67/game).
